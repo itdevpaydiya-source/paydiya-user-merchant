@@ -1,13 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
 import { Screen, Card } from '@/components/Screen';
+import { Button } from '@/components/Button';
 import { colors } from '@/design-system';
 import { mockStaff, mockDevices, mockNotifications } from '@/mocks/data';
 
-export function StaffScreen() {
+export function StaffScreen({ navigation }: any) {
   return (
     <Screen>
       <Text style={styles.title}>Staff</Text>
+      <Button title="+ Add Staff" onPress={() => navigation.navigate('AddStaff')} />
       {mockStaff.map(s => (
         <Card key={s.id}>
           <Text style={styles.name}>{s.name}</Text>

@@ -7,7 +7,7 @@ import { mockTransactionService } from '@/mocks/services';
 import { Transaction } from '@/types';
 import { formatINR } from '@/utils/format';
 
-export default function TransactionDetailsScreen({ route }: any) {
+export default function TransactionDetailsScreen({ route, navigation }: any) {
   const [txn, setTxn] = useState<Transaction | null>(null);
   useEffect(() => {
     mockTransactionService.getById(route.params.id).then(setTxn);
@@ -33,7 +33,7 @@ export default function TransactionDetailsScreen({ route }: any) {
       <Button title="Download Receipt" variant="outline" onPress={() => Alert.alert('Receipt', 'Receipt downloaded (mock)')} />
       <Button title="Share Receipt" variant="outline" onPress={() => Alert.alert('Share', 'Share sheet (mock)')} />
       {txn.refundable && (
-        <Button title="Refund" onPress={() => Alert.alert('Refund', 'Refund flow requires MPIN (mock)')} />
+        <Button title="Refund" onPress={() => (navigation as any).navigate('Refund', { id: txn.id, amount: txn.amount })} />
       )}
       <Button title="Report Issue" variant="outline" onPress={() => Alert.alert('Support', 'Issue raised')} />
     </Screen>

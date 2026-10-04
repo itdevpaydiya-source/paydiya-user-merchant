@@ -10,6 +10,9 @@ import CreateAccountScreen from '@/features/onboarding/CreateAccountScreen';
 import HomeScreen from '@/features/dashboard/HomeScreen';
 import TransactionsScreen from '@/features/transactions/TransactionsScreen';
 import TransactionDetailsScreen from '@/features/transactions/TransactionDetailsScreen';
+import RefundScreen from '@/features/transactions/RefundScreen';
+import AddStaffScreen from '@/features/staff/AddStaffScreen';
+import SettlementDetailsScreen from '@/features/settlements/SettlementDetailsScreen';
 import SettlementsScreen from '@/features/settlements/SettlementsScreen';
 import AnalyticsScreen from '@/features/analytics/AnalyticsScreen';
 import QrScreen from '@/features/qr/QrScreen';
@@ -41,12 +44,14 @@ const MainStack = () => (
     <Stack.Screen name="Reports" component={ReportsScreen} />
     <Stack.Screen name="StoreSettings" component={StoreSettingsScreen} />
     <Stack.Screen name="Staff" component={StaffScreen} />
+    <Stack.Screen name="AddStaff" component={AddStaffScreen} />
     <Stack.Screen name="Devices" component={DevicesScreen} />
     <Stack.Screen name="Notifications" component={NotificationsScreen} />
     <Stack.Screen name="Support" component={SupportScreen} />
     <Stack.Screen name="Security" component={SecurityScreen} />
     <Stack.Screen name="TransactionDetails" component={TransactionDetailsScreen} />
-    <Stack.Screen name="SettlementsDetail" component={SettlementsScreen} />
+    <Stack.Screen name="Refund" component={RefundScreen} />
+    <Stack.Screen name="SettlementDetails" component={SettlementDetailsScreen} />
   </Stack.Navigator>
 );
 

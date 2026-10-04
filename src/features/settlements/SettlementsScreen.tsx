@@ -6,7 +6,7 @@ import { mockSettlementService } from '@/mocks/services';
 import { Settlement } from '@/types';
 import { formatINR } from '@/utils/format';
 
-export default function SettlementsScreen() {
+export default function SettlementsScreen({ navigation }: any) {
   const [upcoming, setUpcoming] = useState<any>(null);
   const [history, setHistory] = useState<Settlement[]>([]);
 
@@ -30,7 +30,7 @@ export default function SettlementsScreen() {
       {history.map(s => (
         <Card key={s.id}>
           <View style={styles.row}>
-            <Text style={styles.amount}>{formatINR(s.amount)}</Text>
+            <Text style={styles.amount} onPress={() => navigation.navigate('SettlementDetails', { id: s.id })}>{formatINR(s.amount)}</Text>
             <Text style={styles.status}>{s.status}</Text>
           </View>
           <Text style={styles.sub}>{s.date} • {s.utr}</Text>

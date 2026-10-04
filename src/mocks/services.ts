@@ -40,11 +40,24 @@ export const mockQRService = {
     respond({ amount, note, expiresAt: Date.now() + 5 * 60 * 1000, status: 'Waiting' as const }),
 };
 
+const refundKeys = new Map<string, { status: string; id: string }>();
+const refundedTxns = new Set<string>();
+
 export const mockTransactionService = {
   list: () => respond(mockTransactions),
   getById: (id: string) => respond(mockTransactions.find(t => t.id === id)!),
-  refund: (id: string, _amount: number, _reason: string) =>
-    respond({ status: 'PROCESSING', id }),
+  refund: (id: string, amount: number, reason: string, idempotencyKey?: string) => {
+    if (idempotencyKey && refundKeys.has(idempotencyKey)) {
+      return respond(refundKeys.get(idempotencyKey)!);
+    }
+    if (refundedTxns.has(id)) {
+      return respond({ status: 'FAILED', id, error: 'Refund already processed for this transaction' });
+    }
+    refundedTxns.add(id);
+    const result = { status: 'PROCESSING', id, amount, reason };
+    if (idempotencyKey) refundKeys.set(idempotencyKey, result as any);
+    return respond(result);
+  },
 };
 
 export const mockSettlementService = {
