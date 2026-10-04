@@ -5,14 +5,19 @@ import { colors, spacing } from '@/design-system';
 import { mockTransactionService } from '@/mocks/services';
 import { Transaction } from '@/types';
 import { formatINR } from '@/utils/format';
+import { Skeleton } from '@/components/StateViews';
 
 export default function TransactionsScreen({ navigation }: any) {
   const [txns, setTxns] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState('All');
 
   useEffect(() => {
-    mockTransactionService.list().then(setTxns);
+    mockTransactionService.list().then(t => {
+      setTxns(t);
+      setLoading(false);
+    });
   }, []);
 
   const shown = txns.filter(t => {
@@ -37,6 +42,8 @@ export default function TransactionsScreen({ navigation }: any) {
           </Text>
         ))}
       </View>
+      {loading ? <Skeleton count={4} /> : (
+      <>
       {shown.map(t => (
         <Card key={t.id}>
           <Text
@@ -52,6 +59,8 @@ export default function TransactionsScreen({ navigation }: any) {
         </Card>
       ))}
       {shown.length === 0 && <Text style={styles.empty}>No transactions found.</Text>}
+      </>
+      )}
     </Screen>
   );
 }

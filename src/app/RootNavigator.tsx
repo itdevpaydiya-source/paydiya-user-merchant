@@ -10,6 +10,8 @@ import CreateAccountScreen from '@/features/onboarding/CreateAccountScreen';
 import HomeScreen from '@/features/dashboard/HomeScreen';
 import TransactionsScreen from '@/features/transactions/TransactionsScreen';
 import TransactionDetailsScreen from '@/features/transactions/TransactionDetailsScreen';
+import NotificationPreferencesScreen from '@/features/notifications/NotificationPreferencesScreen';
+import PaymentLinkDetailsScreen from '@/features/payment-links/PaymentLinkDetailsScreen';
 import RefundScreen from '@/features/transactions/RefundScreen';
 import AddStaffScreen from '@/features/staff/AddStaffScreen';
 import SettlementDetailsScreen from '@/features/settlements/SettlementDetailsScreen';
@@ -40,6 +42,7 @@ const MainStack = () => (
     <Stack.Screen name="Tabs" component={MainTabs} />
     <Stack.Screen name="QR" component={QrScreen} />
     <Stack.Screen name="PaymentLinks" component={PaymentLinksScreen} />
+    <Stack.Screen name="PaymentLinkDetails" component={PaymentLinkDetailsScreen} />
     <Stack.Screen name="Analytics" component={AnalyticsScreen} />
     <Stack.Screen name="Reports" component={ReportsScreen} />
     <Stack.Screen name="StoreSettings" component={StoreSettingsScreen} />
@@ -47,6 +50,7 @@ const MainStack = () => (
     <Stack.Screen name="AddStaff" component={AddStaffScreen} />
     <Stack.Screen name="Devices" component={DevicesScreen} />
     <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    <Stack.Screen name="NotificationPreferences" component={NotificationPreferencesScreen} />
     <Stack.Screen name="Support" component={SupportScreen} />
     <Stack.Screen name="Security" component={SecurityScreen} />
     <Stack.Screen name="TransactionDetails" component={TransactionDetailsScreen} />

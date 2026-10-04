@@ -4,6 +4,7 @@ import { Screen, Card } from '@/components/Screen';
 import { Button } from '@/components/Button';
 import { colors } from '@/design-system';
 import { mockStaff, mockDevices, mockNotifications } from '@/mocks/data';
+import { mockReportService } from '@/mocks/services';
 
 export function StaffScreen({ navigation }: any) {
   return (
@@ -57,14 +58,24 @@ export function NotificationsScreen() {
 }
 
 export function ReportsScreen() {
+  const [last, setLast] = React.useState<string | null>(null);
+  const exportReport = async (r: string, format: 'PDF' | 'CSV' | 'Excel') => {
+    const res = await mockReportService.export(r, format);
+    setLast(`${r} exported as ${format}: ${res.url}`);
+  };
   const reports = ['Transaction Report', 'Settlement Report', 'Sales Report', 'Refund Report', 'Payment Method Report', 'GST Report', 'Daily Report', 'Monthly Report'];
   return (
     <Screen>
       <Text style={styles.title}>Reports</Text>
+      {last && <Card><Text style={styles.sub}>{last}</Text></Card>}
       {reports.map(r => (
         <Card key={r}>
           <Text style={styles.name}>{r}</Text>
-          <Text style={styles.sub}>Export PDF • CSV • Excel</Text>
+          <View style={styles.exportRow}>
+            {(['PDF', 'CSV', 'Excel'] as const).map(f => (
+              <Text key={f} style={styles.exportBtn} onPress={() => exportReport(r, f)}>{f}</Text>
+            ))}
+          </View>
         </Card>
       ))}
     </Screen>
@@ -101,4 +112,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
   status: { color: colors.green, fontWeight: '700' },
   action: { color: colors.orange, fontWeight: '700' },
+  exportRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  exportBtn: { color: colors.orange, fontWeight: '700', paddingHorizontal: 10, paddingVertical: 4, backgroundColor: colors.peachLight, borderRadius: 8 },
 });

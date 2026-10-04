@@ -13,6 +13,7 @@ const items: Array<[string, string]> = [
   ['Bank & KYC', 'StoreSettings'],
   ['POS', 'Devices'],
   ['Notifications', 'Notifications'],
+  ['Notification Preferences', 'NotificationPreferences'],
   ['Help & Support', 'Support'],
   ['Security', 'Security'],
 ];

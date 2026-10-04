@@ -5,14 +5,19 @@ import { colors } from '@/design-system';
 import { mockSettlementService } from '@/mocks/services';
 import { Settlement } from '@/types';
 import { formatINR } from '@/utils/format';
+import { Skeleton } from '@/components/StateViews';
 
 export default function SettlementsScreen({ navigation }: any) {
   const [upcoming, setUpcoming] = useState<any>(null);
   const [history, setHistory] = useState<Settlement[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    mockSettlementService.upcoming().then(setUpcoming);
-    mockSettlementService.list().then(setHistory);
+    Promise.all([mockSettlementService.upcoming(), mockSettlementService.list()]).then(([u, l]) => {
+      setUpcoming(u);
+      setHistory(l);
+      setLoading(false);
+    });
   }, []);
 
   return (
@@ -27,7 +32,7 @@ export default function SettlementsScreen({ navigation }: any) {
         </Card>
       )}
       <Text style={styles.section}>Settlement History</Text>
-      {history.map(s => (
+      {loading ? <Skeleton count={4} /> : history.map(s => (
         <Card key={s.id}>
           <View style={styles.row}>
             <Text style={styles.amount} onPress={() => navigation.navigate('SettlementDetails', { id: s.id })}>{formatINR(s.amount)}</Text>

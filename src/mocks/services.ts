@@ -105,6 +105,8 @@ export const mockReportService = {
       'Daily Report',
       'Monthly Report',
     ]),
+  export: (report: string, format: 'PDF' | 'CSV' | 'Excel') =>
+    respond({ url: `file:///reports/${report.replace(/\s/g, '_')}.${format.toLowerCase()}`, format }),
 };
 
 export const mockNotificationService = {

@@ -7,7 +7,7 @@ import { mockPaymentLinkService, mockPaymentLinkService as pl } from '@/mocks/se
 import { PaymentLink } from '@/types';
 import { formatINR } from '@/utils/format';
 
-export default function PaymentLinksScreen() {
+export default function PaymentLinksScreen({ navigation }: any) {
   const [tab, setTab] = useState<'create' | 'history'>('create');
   const [amount, setAmount] = useState('');
   const [purpose, setPurpose] = useState('');
@@ -49,7 +49,7 @@ export default function PaymentLinksScreen() {
           {links.map(l => (
             <Card key={l.id}>
               <View style={styles.row}>
-                <Text style={styles.amount}>{formatINR(l.amount)}</Text>
+                <Text style={styles.amount} onPress={() => navigation.navigate('PaymentLinkDetails', { id: l.id })}>{formatINR(l.amount)}</Text>
                 <Text style={styles.status}>{l.status}</Text>
               </View>
               <Text style={styles.sub}>{l.purpose} • {l.createdAt} • Expiry: {l.expiry}</Text>
