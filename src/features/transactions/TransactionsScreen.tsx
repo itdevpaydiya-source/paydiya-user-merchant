@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen, Card } from '@/components/Screen';
-import { colors, spacing } from '@/design-system';
+import { colors } from '@/design-system';
 import { mockTransactionService } from '@/mocks/services';
 import { Transaction } from '@/types';
 import { formatINR } from '@/utils/format';

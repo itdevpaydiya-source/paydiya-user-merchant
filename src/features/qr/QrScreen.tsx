@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen, Card } from '@/components/Screen';
 import { Button } from '@/components/Button';
-import { colors, spacing } from '@/design-system';
+import { colors } from '@/design-system';
 import { mockQRService } from '@/mocks/services';
 import { mockMerchant } from '@/mocks/data';
 

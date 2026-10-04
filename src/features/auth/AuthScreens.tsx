@@ -4,7 +4,7 @@ import { Button } from '@/components/Button';
 import { colors, spacing } from '@/design-system';
 import { mockAuthService } from '@/mocks/services';
 
-export function OtpScreen({ navigation, route }: any) {
+export function OtpScreen({ navigation }: any) {
   const [otp, setOtp] = useState('');
   const verify = async () => {
     try {

@@ -2,7 +2,6 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
 
 import LoginScreen from '@/features/auth/LoginScreen';
 import { OtpScreen, MpinScreen, BiometricScreen, DeviceVerificationScreen } from '@/features/auth/AuthScreens';
