@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: '700',
     letterSpacing: 0.2,
+    includeFontPadding: false,
   },
   smallText: {
     fontSize: 11,
