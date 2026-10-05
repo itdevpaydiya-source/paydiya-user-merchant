@@ -5,7 +5,7 @@ module.exports = tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['node_modules/**', 'android/**', 'ios/**', '*.config.js', 'jest.setup.js'],
+    ignores: ['node_modules/**', 'android/**', 'ios/**', '*.config.js', 'jest.setup.js', '.prettierrc.js'],
   },
   {
     rules: {

@@ -9,8 +9,7 @@ import { formatINR } from '@/utils/format';
 export default function PaymentLinkDetailsScreen({ route }: any) {
   const link = mockPaymentLinks.find(l => l.id === route.params?.id) ?? mockPaymentLinks[0];
   return (
-    <Screen>
-      <Text style={styles.title}>Payment Link</Text>
+    <Screen variant="cream" title="Payment Link Details" showBack={true}>
       <Card>
         <Text style={styles.amount}>{formatINR(link.amount)}</Text>
         <Text style={styles.status}>{link.status}</Text>

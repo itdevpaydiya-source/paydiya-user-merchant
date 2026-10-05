@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Screen, Card } from '@/components/Screen';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors, radius, spacing } from '@/design-system';
+import { Screen } from '@/components/Screen';
+import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { colors } from '@/design-system';
+import { Input } from '@/components/Input';
+import { Icon } from '@/components/Icon';
 
-const ROLES = ['Owner', 'Manager', 'Cashier', 'Accountant', 'Staff'] as const;
+const ROLES = ['Manager', 'Cashier', 'Accountant', 'Staff'] as const;
 const ALL_PERMISSIONS = [
-  'View Dashboard', 'View Transactions', 'Create Payment Link', 'View Settlements',
-  'View Analytics', 'Process Refund', 'View Reports', 'Manage Store',
-  'Manage Staff', 'Manage Devices', 'Access POS',
+  'Dashboard',
+  'Transactions',
+  'Payment Links',
+  'Settlements',
+  'Analytics',
+  'Refund',
+  'Reports',
+  'Store',
+  'Staff',
+  'Devices',
+  'POS',
 ];
 
 export default function AddStaffScreen({ navigation }: any) {
@@ -16,54 +27,185 @@ export default function AddStaffScreen({ navigation }: any) {
   const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<typeof ROLES[number]>('Cashier');
-  const [perms, setPerms] = useState<string[]>([]);
+  const [perms, setPerms] = useState<string[]>([
+    'Dashboard',
+    'Transactions',
+    'POS',
+  ]);
 
   const toggle = (p: string) =>
-    setPerms(prev => (prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]));
+    setPerms(prev =>
+      prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p],
+    );
 
   const submit = () => {
-    if (!name.trim() || !mobile.trim()) return Alert.alert('Error', 'Name and mobile required');
-    Alert.alert('Staff Added', `${name} (${role}) with ${perms.length} permissions`, [
-      { text: 'OK', onPress: () => navigation.goBack() },
-    ]);
+    if (!name.trim() || !mobile.trim()) {
+      return Alert.alert('Required', 'Staff name and mobile number are required.');
+    }
+    Alert.alert(
+      'Staff Member Added',
+      `${name} has been invited as a ${role} with ${perms.length} permissions.`,
+      [{ text: 'OK', onPress: () => navigation.goBack() }],
+    );
   };
 
   return (
-    <Screen>
-      <Text style={styles.title}>Add Staff</Text>
-      <Card>
-        <TextInput style={styles.input} placeholder="Name" value={name} onChangeText={setName} />
-        <TextInput style={styles.input} placeholder="Mobile" keyboardType="phone-pad" value={mobile} onChangeText={setMobile} />
-        <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
-        <Text style={styles.section}>Role</Text>
-        <View style={styles.chips}>
-          {ROLES.map(r => (
-            <Pressable key={r} onPress={() => setRole(r)} style={[styles.chip, role === r && styles.chipActive]}>
-              <Text style={role === r ? styles.chipTextActive : styles.chipText}>{r}</Text>
-            </Pressable>
-          ))}
+    <Screen variant="cream" showBack={true} title="Add Staff Member">
+      <Card style={styles.formCard}>
+        <Input
+          label="Full Name"
+          placeholder="e.g. Ramesh Babu"
+          value={name}
+          onChangeText={setName}
+          prefixIcon={<Icon name="user" size={18} color={colors.primary} />}
+        />
+
+        <Input
+          label="Mobile Number"
+          placeholder="10-digit number"
+          keyboardType="phone-pad"
+          maxLength={10}
+          value={mobile}
+          onChangeText={setMobile}
+          prefixText="+91"
+        />
+
+        <Input
+          label="Email Address (Optional)"
+          placeholder="staff@store.com"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          prefixIcon={<Icon name="mail" size={18} color={colors.primary} />}
+        />
+
+        <Text style={styles.sectionHeading}>Assign Role</Text>
+        <View style={styles.roleGrid}>
+          {ROLES.map(r => {
+            const isSelected = role === r;
+            return (
+              <TouchableOpacity
+                key={r}
+                onPress={() => setRole(r)}
+                style={[styles.roleChip, isSelected && styles.roleChipActive]}>
+                <Text
+                  style={[
+                    styles.roleChipText,
+                    isSelected && styles.roleChipTextActive,
+                  ]}>
+                  {r}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-        <Text style={styles.section}>Permissions</Text>
-        {ALL_PERMISSIONS.map(p => (
-          <Pressable key={p} onPress={() => toggle(p)} style={styles.permRow}>
-            <Text style={styles.perm}>{perms.includes(p) ? '☑' : '☐'} {p}</Text>
-          </Pressable>
-        ))}
-        <Button title="Add Staff" onPress={submit} />
+
+        <Text style={styles.sectionHeading}>Access Permissions</Text>
+        <View style={styles.permissionsContainer}>
+          {ALL_PERMISSIONS.map(p => {
+            const isChecked = perms.includes(p);
+            return (
+              <TouchableOpacity
+                key={p}
+                onPress={() => toggle(p)}
+                style={styles.permRow}>
+                <View
+                  style={[
+                    styles.checkbox,
+                    isChecked && styles.checkboxChecked,
+                  ]}>
+                  {isChecked && (
+                    <Icon name="check" size={12} color={colors.white} />
+                  )}
+                </View>
+                <Text style={styles.permLabel}>{p}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <Button
+          title="Save Staff Member"
+          onPress={submit}
+          variant="primary"
+          size="large"
+          style={styles.submitBtn}
+        />
       </Card>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 22, fontWeight: '800', color: colors.charcoal, marginBottom: 12 },
-  input: { backgroundColor: colors.creamDark, borderRadius: 12, padding: 14, marginBottom: 10 },
-  section: { fontWeight: '700', color: colors.charcoal, marginVertical: 8 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: colors.grayLight, borderRadius: 20 },
-  chipActive: { backgroundColor: colors.charcoal },
-  chipText: { color: colors.charcoal },
-  chipTextActive: { color: '#fff' },
-  permRow: { paddingVertical: 6 },
-  perm: { color: colors.charcoal },
+  formCard: {
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  sectionHeading: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.charcoal,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  roleGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: spacing.md,
+  },
+  roleChip: {
+    paddingVertical: 8,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.gray100,
+    borderWidth: 1,
+    borderColor: colors.divider,
+  },
+  roleChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  roleChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.charcoalLight,
+  },
+  roleChipTextActive: {
+    color: colors.white,
+    fontWeight: '700',
+  },
+  permissionsContainer: {
+    marginBottom: spacing.lg,
+  },
+  permRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.divider,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: colors.divider,
+    backgroundColor: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  permLabel: {
+    fontSize: 14,
+    color: colors.charcoal,
+    fontWeight: '500',
+  },
+  submitBtn: {
+    marginTop: spacing.sm,
+  },
 });

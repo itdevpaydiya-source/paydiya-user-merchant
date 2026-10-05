@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { Screen, Card } from '@/components/Screen';
-import { colors } from '@/design-system';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { colors, radius, spacing } from '@/design-system';
+import { Screen } from '@/components/Screen';
+import { Card } from '@/components/Card';
+import { Icon } from '@/components/Icon';
+import { Badge } from '@/components/Badge';
+import { Skeleton, EmptyState } from '@/components/StateViews';
 import { mockTransactionService } from '@/mocks/services';
 import { Transaction } from '@/types';
 import { formatINR } from '@/utils/format';
-import { Skeleton } from '@/components/StateViews';
+
+const FILTERS = ['All', 'Received', 'Refunded', 'Pending'];
 
 export default function TransactionsScreen({ navigation }: any) {
   const [txns, setTxns] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [q, setQ] = useState('');
-  const [filter, setFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('All');
 
   useEffect(() => {
     mockTransactionService.list().then(t => {
@@ -20,61 +32,244 @@ export default function TransactionsScreen({ navigation }: any) {
     });
   }, []);
 
-  const shown = txns.filter(t => {
-    const matchQ = t.customer.toLowerCase().includes(q.toLowerCase()) || t.utr.includes(q) || t.id.includes(q);
-    const matchF = filter === 'All' || t.status === filter.toUpperCase();
-    return matchQ && matchF;
+  const filteredTxns = txns.filter(t => {
+    const matchQuery =
+      t.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.utr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.id.toLowerCase().includes(searchQuery.toLowerCase());
+
+    let matchFilter = true;
+    if (activeFilter === 'Received') {
+      matchFilter = t.status === 'SUCCESS' && t.amount > 0;
+    } else if (activeFilter === 'Refunded') {
+      matchFilter = t.status === 'REFUNDED' || t.amount < 0;
+    } else if (activeFilter === 'Pending') {
+      matchFilter = t.status === 'PENDING' || t.status === 'PROCESSING';
+    }
+
+    return matchQuery && matchFilter;
   });
 
   return (
-    <Screen>
-      <Text style={styles.title}>Transactions</Text>
-      <TextInput
-        style={styles.search}
-        placeholder="Search by UTR, transaction ID, customer or amount"
-        value={q}
-        onChangeText={setQ}
-      />
-      <View style={styles.filters}>
-        {['All', 'Received', 'Pending', 'Refunded', 'Failed'].map(f => (
-          <Text key={f} onPress={() => setFilter(f)} style={[styles.chip, filter === f && styles.chipActive]}>
-            {f}
-          </Text>
-        ))}
+    <Screen variant="cream" showBack={true} title="Transactions">
+      {/* Search Input Bar with Icon matching Screen 4 */}
+      <View style={styles.searchBar}>
+        <Icon name="search" size={18} color={colors.gray500} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by UTR, customer or amount"
+          placeholderTextColor={colors.gray500}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <Icon name="close" size={16} color={colors.gray500} />
+          </TouchableOpacity>
+        )}
       </View>
-      {loading ? <Skeleton count={4} /> : (
-      <>
-      {shown.map(t => (
-        <Card key={t.id}>
-          <Text
-            style={styles.customer}
-            onPress={() => navigation.navigate('TransactionDetails', { id: t.id })}>
-            {t.customer}
-          </Text>
-          <Text style={styles.sub}>{t.method} Payment • {t.date}, {t.time}</Text>
-          <View style={styles.row}>
-            <Text style={styles.amount}>{formatINR(t.amount)}</Text>
-            <Text style={styles.status}>{t.status}</Text>
-          </View>
-        </Card>
-      ))}
-      {shown.length === 0 && <Text style={styles.empty}>No transactions found.</Text>}
-      </>
+
+      {/* Filter Chips matching Screen 4 */}
+      <View style={styles.filterRow}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {FILTERS.map(f => {
+            const isActive = activeFilter === f;
+            return (
+              <TouchableOpacity
+                key={f}
+                onPress={() => setActiveFilter(f)}
+                style={[
+                  styles.filterChip,
+                  isActive && styles.filterChipActive,
+                ]}>
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    isActive && styles.filterChipTextActive,
+                  ]}>
+                  {f}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Transactions List */}
+      {loading ? (
+        <Skeleton count={5} />
+      ) : filteredTxns.length === 0 ? (
+        <EmptyState
+          icon="search"
+          title="No Transactions Found"
+          message="Try adjusting your search terms or filters."
+          actionTitle="Clear Search"
+          onAction={() => {
+            setSearchQuery('');
+            setActiveFilter('All');
+          }}
+        />
+      ) : (
+        filteredTxns.map(t => {
+          const isRefund = t.amount < 0 || t.status === 'REFUNDED';
+          const initials = t.customer
+            .split(' ')
+            .map(w => w[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase();
+
+          const badgeVariant = isRefund
+            ? 'error'
+            : t.status === 'PENDING'
+            ? 'warning'
+            : 'success';
+
+          return (
+            <Card
+              key={t.id}
+              onPress={() => navigation.navigate('TransactionDetails', { id: t.id, transaction: t })}
+              style={styles.txCard}>
+              <View style={styles.txRow}>
+                <View
+                  style={[
+                    styles.avatarCircle,
+                    isRefund && styles.refundAvatar,
+                  ]}>
+                  <Text
+                    style={[
+                      styles.avatarText,
+                      isRefund && styles.refundAvatarText,
+                    ]}>
+                    {initials}
+                  </Text>
+                </View>
+
+                <View style={styles.txInfo}>
+                  <Text style={styles.customerName}>{t.customer}</Text>
+                  <Text style={styles.txMeta}>
+                    {t.method} {isRefund ? 'Refund' : 'Payment'} • {t.date}, {t.time}
+                  </Text>
+                </View>
+
+                <View style={styles.amountCol}>
+                  <Text
+                    style={[
+                      styles.amountText,
+                      isRefund ? styles.amountRefund : styles.amountSuccess,
+                    ]}>
+                    {isRefund ? '-' : '+'}{formatINR(Math.abs(t.amount))}
+                  </Text>
+                  <Badge
+                    label={t.status === 'SUCCESS' ? 'Success' : t.status}
+                    variant={badgeVariant}
+                    size="small"
+                  />
+                </View>
+              </View>
+            </Card>
+          );
+        })
       )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 22, fontWeight: '800', color: colors.charcoal, marginBottom: 12 },
-  search: { backgroundColor: '#fff', borderRadius: 12, padding: 12, marginBottom: 10 },
-  filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
-  chip: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: colors.grayLight, borderRadius: 20, color: colors.charcoal },
-  chipActive: { backgroundColor: colors.charcoal, color: '#fff' },
-  customer: { fontWeight: '700', color: colors.charcoal },
-  sub: { color: colors.gray, fontSize: 12, marginVertical: 2 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
-  amount: { fontWeight: '800', color: colors.charcoal },
-  status: { color: colors.orange, fontWeight: '700', fontSize: 12 },
-  empty: { textAlign: 'center', color: colors.gray, marginTop: 40 },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.md,
+    height: 48,
+    borderWidth: 1,
+    borderColor: colors.divider,
+    marginBottom: spacing.md,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.charcoal,
+    marginLeft: spacing.sm,
+  },
+  filterRow: {
+    marginBottom: spacing.md,
+  },
+  filterChip: {
+    paddingVertical: 7,
+    paddingHorizontal: spacing.base,
+    borderRadius: radius.full,
+    backgroundColor: colors.white,
+    marginRight: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.divider,
+  },
+  filterChipActive: {
+    backgroundColor: colors.charcoal,
+    borderColor: colors.charcoal,
+  },
+  filterChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.charcoalMuted,
+  },
+  filterChipTextActive: {
+    color: colors.white,
+  },
+  txCard: {
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  txRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
+  },
+  refundAvatar: {
+    backgroundColor: colors.errorLight,
+  },
+  avatarText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.primaryDark,
+  },
+  refundAvatarText: {
+    color: colors.error,
+  },
+  txInfo: {
+    flex: 1,
+  },
+  customerName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.charcoal,
+  },
+  txMeta: {
+    fontSize: 12,
+    color: colors.charcoalMuted,
+    marginTop: 2,
+  },
+  amountCol: {
+    alignItems: 'flex-end',
+  },
+  amountText: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  amountSuccess: {
+    color: colors.success,
+  },
+  amountRefund: {
+    color: colors.error,
+  },
 });

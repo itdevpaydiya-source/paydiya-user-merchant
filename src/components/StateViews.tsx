@@ -1,34 +1,97 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, spacing } from '@/design-system';
+import { colors, radius, spacing } from '@/design-system';
+import { Icon, IconName } from './Icon';
+import { Button } from './Button';
 
-export function Skeleton({ count = 3 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+  height?: number;
+}
+
+export function Skeleton({ count = 3, height = 70 }: SkeletonProps) {
   return (
-    <View>
+    <View style={styles.skeletonContainer}>
       {Array.from({ length: count }).map((_, i) => (
-        <View key={i} style={styles.skeletonCard}>
-          <View style={styles.skeletonLine} />
-          <View style={[styles.skeletonLine, { width: '60%' }]} />
+        <View key={i} style={[styles.skeletonCard, { minHeight: height }]}>
+          <View style={styles.skeletonRow}>
+            <View style={styles.skeletonAvatar} />
+            <View style={styles.skeletonCol}>
+              <View style={styles.skeletonTitle} />
+              <View style={styles.skeletonSubtitle} />
+            </View>
+            <View style={styles.skeletonAmount} />
+          </View>
         </View>
       ))}
     </View>
   );
 }
 
-export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+interface EmptyStateProps {
+  title?: string;
+  message: string;
+  icon?: IconName;
+  actionTitle?: string;
+  onAction?: () => void;
+}
+
+export function EmptyState({
+  title = 'No Data Found',
+  message,
+  icon = 'search',
+  actionTitle,
+  onAction,
+}: EmptyStateProps) {
   return (
-    <View style={styles.center}>
-      <Text style={styles.errorTitle}>Something went wrong</Text>
-      <Text style={styles.errorMsg}>{message}</Text>
-      {onRetry && <Text style={styles.retry} onPress={onRetry}>Retry</Text>}
+    <View style={styles.centerContainer}>
+      <View style={styles.iconCircle}>
+        <Icon name={icon} size={32} color={colors.goldMuted} />
+      </View>
+      <Text style={styles.emptyTitle}>{title}</Text>
+      <Text style={styles.emptyMessage}>{message}</Text>
+      {actionTitle && onAction && (
+        <Button
+          title={actionTitle}
+          onPress={onAction}
+          variant="outline"
+          size="small"
+          fullWidth={false}
+          style={styles.emptyButton}
+        />
+      )}
     </View>
   );
 }
 
-export function EmptyState({ message }: { message: string }) {
+interface ErrorStateProps {
+  title?: string;
+  message: string;
+  onRetry?: () => void;
+}
+
+export function ErrorState({
+  title = 'Something Went Wrong',
+  message,
+  onRetry,
+}: ErrorStateProps) {
   return (
-    <View style={styles.center}>
-      <Text style={styles.sub}>{message}</Text>
+    <View style={styles.centerContainer}>
+      <View style={[styles.iconCircle, styles.errorIconCircle]}>
+        <Icon name="close" size={30} color={colors.error} />
+      </View>
+      <Text style={styles.emptyTitle}>{title}</Text>
+      <Text style={styles.emptyMessage}>{message}</Text>
+      {onRetry && (
+        <Button
+          title="Try Again"
+          onPress={onRetry}
+          variant="primary"
+          size="small"
+          fullWidth={false}
+          style={styles.retryButton}
+        />
+      )}
     </View>
   );
 }
@@ -36,30 +99,114 @@ export function EmptyState({ message }: { message: string }) {
 export function OfflineBanner() {
   return (
     <View style={styles.banner}>
-      <Text style={styles.bannerText}>You're offline. Your latest data may not be available.</Text>
+      <Icon name="wifi-off" size={16} color={colors.orangeDark} />
+      <Text style={styles.bannerText}>
+        You're offline. Changes will sync once reconnected.
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  skeletonContainer: {
+    marginVertical: spacing.sm,
+  },
   skeletonCard: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: spacing.md,
+    backgroundColor: colors.white,
+    borderRadius: radius.xl,
+    padding: spacing.base,
     marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.04)',
+    justifyContent: 'center',
   },
-  skeletonLine: {
+  skeletonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  skeletonAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.gray200,
+    marginRight: spacing.md,
+  },
+  skeletonCol: {
+    flex: 1,
+  },
+  skeletonTitle: {
     height: 14,
-    borderRadius: 7,
-    backgroundColor: colors.grayLight,
-    marginBottom: 8,
-    width: '80%',
+    borderRadius: 4,
+    backgroundColor: colors.gray200,
+    width: '70%',
+    marginBottom: 6,
   },
-  center: { alignItems: 'center', padding: spacing.xl },
-  errorTitle: { fontWeight: '700', color: colors.charcoal, marginBottom: 4 },
-  errorMsg: { color: colors.gray },
-  retry: { marginTop: 10, color: colors.orange, fontWeight: '700' },
-  sub: { color: colors.gray },
-  banner: { backgroundColor: colors.peachLight, padding: 10, borderRadius: 10, marginBottom: 12 },
-  bannerText: { color: colors.charcoalLight, fontSize: 13 },
+  skeletonSubtitle: {
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: colors.gray100,
+    width: '45%',
+  },
+  skeletonAmount: {
+    width: 50,
+    height: 16,
+    borderRadius: 4,
+    backgroundColor: colors.gray200,
+  },
+  centerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing['2xl'],
+    marginVertical: spacing.lg,
+  },
+  iconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.peachLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.base,
+  },
+  errorIconCircle: {
+    backgroundColor: colors.errorLight,
+  },
+  emptyTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.charcoal,
+    marginBottom: spacing.xs,
+    textAlign: 'center',
+  },
+  emptyMessage: {
+    fontSize: 14,
+    color: colors.gray500,
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 280,
+  },
+  emptyButton: {
+    marginTop: spacing.base,
+  },
+  retryButton: {
+    marginTop: spacing.base,
+  },
+  banner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.peachLight,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.base,
+    borderRadius: radius.md,
+    marginBottom: spacing.base,
+    borderWidth: 1,
+    borderColor: colors.peach,
+  },
+  bannerText: {
+    color: colors.orangeDark,
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: spacing.sm,
+    flex: 1,
+  },
 });
